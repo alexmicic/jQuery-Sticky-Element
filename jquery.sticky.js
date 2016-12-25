@@ -2,41 +2,27 @@ $(document).ready(function () {
 
 	var sticky = {
 
-		// sticky: $('.element'),
-		// parent: $('.sidebar'),
-		// stickyHeight: this.sticky.height(),
-		// parentHeight: this.parent.height(),
-
-		init: function(sticky, parent, spacer){
+		init: function(el){
 			var self = this;
-			self.sticky = $(sticky);
-			self.parent = $(parent);
-			self.spacer = $(spacer);
+			var container = $(el);
+			self.sticky = container.find('.element');
+			self.static = container.find('.text');
 			self.stickyHeight = self.sticky.outerHeight();
-			self.parentHeight = self.parent.outerHeight();
-			self.spacerHeight = self.spacer.outerHeight();
+			self.staticHeight = self.static.outerHeight();
 			self.render();
 			self.attachEvents();
 		},
 
 		render: function(){
 			var self = this;
-			var stickyOffset = self.sticky.offset().top;
-			var parentOffset = self.parent.offset().top;
-			var winScroll = $(window).scrollTop();
-			var winHeight = $(window).outerHeight();
+			var staticOffset = self.static.offset().top;
+			var winBottomPos = $(window).height() + $(window).scrollTop();
 			
 			var cond = 
-			self.inViewport(self.parent, false)
-			&& (self.spacer ? (winScroll > (self.spacerHeight + parentOffset - winHeight)) : true)
-			&& (winScroll < self.parentHeight)
-			&& ((self.parentHeight + parentOffset - self.stickyHeight) >= (winHeight + winScroll));
+			(winBottomPos >= staticOffset)
+			&& (winBottomPos <= (staticOffset + self.staticHeight + self.stickyHeight));
 
-			if(cond){
-				self.sticky.addClass('sticky');
-			} else {
-				self.sticky.removeClass('sticky');
-			}
+			self.sticky.toggleClass('sticky', cond);
 		},
 
 		attachEvents: function(){
@@ -44,23 +30,10 @@ $(document).ready(function () {
 			$(window).on('resize scroll', function(){
 				self.render();
 			});
-		},
-
-		inViewport: function(element, fullyInView) {
-			var pageTop = $(window).scrollTop();
-			var pageBottom = pageTop + $(window).outerHeight();
-			var elementTop = $(element).offset().top;
-			var elementBottom = elementTop + $(element).outerHeight();
-
-			if (fullyInView === true) {
-				return ((pageTop < elementTop) && (pageBottom > elementBottom));
-			} else {
-				return ((elementTop <= pageBottom) && (elementBottom >= pageTop));
-			}
 		}
 		
 	};
 
-	sticky.init('.element', '.sidebar', '.spacer');
+	sticky.init('#sidebar');
 
 });
